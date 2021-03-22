@@ -21,14 +21,14 @@ jobs:
       - name: Clone Repository (Latest)
         uses: actions/checkout@v2
         with:
-          repository: 'shosetsuorg/android-app'
+          repository: 'pavan3999/android-app'
           fetch-depth: 0
         if: github.event.inputs.git-ref == ''
       - name: Clone Repository (Custom Ref)
         uses: actions/checkout@v2
         if: github.event.inputs.git-ref != ''
         with:
-          repository: 'shosetsuorg/android-app'
+          repository: 'pavan3999/android-app'
           fetch-depth: 0
           ref: ${{ github.event.inputs.git-ref }}
 
