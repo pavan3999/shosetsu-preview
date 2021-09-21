@@ -70,7 +70,7 @@ jobs:
           release_name: Shosetsu Preview r${{ env.COMMIT_COUNT }}
           body: >
             r${{ env.COMMIT_COUNT }}
-            Latest commit: https://github.com/shosetsuorg/android-app/commit/${{ env.CURRENT_SHA }}
+            Latest commit: https://github.com/pavan3999/android-app/commit/${{ env.CURRENT_SHA }}
           draft: ${{ github.event.inputs.dry-run != '' }}
           prerelease: false
       
