@@ -2,8 +2,8 @@ name: Build job
 # Cloned from tachiyomi
 on:
   # Every Saturday at 16:00 UTC-5
-  schedule:
-    - cron: '0 21 * * 0,3'
+  #schedule:
+  #  - cron: '0 21 * * 0,3'
   # Manual triggers
   workflow_dispatch:
     inputs:
@@ -69,7 +69,7 @@ jobs:
       - name: Build APK
         uses: gradle/gradle-command-action@v2
         with:
-          arguments: assembleStandardDebug --stacktrace --scan
+          arguments: assembleStandardDebug
       
       - name: Sign APK
         uses: r0adkll/sign-android-release@v1
@@ -84,21 +84,25 @@ jobs:
         run: |
           set -e
 
-          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-universal-debug-signed.apk shosetsu-universal-r${{ env.COMMIT_COUNT }}.apk
-          sha=`sha256sum shosetsu-universal-r${{ env.COMMIT_COUNT }}.apk | awk '{ print $1 }'`
+          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-universal-debug-signed.apk shosetsu-r${{ env.COMMIT_COUNT }}-universal.apk
+          sha=`sha256sum shosetsu-r${{ env.COMMIT_COUNT }}-universal.apk | awk '{ print $1 }'`
           echo "APK_UNIVERSAL_SHA=$sha" >> $GITHUB_ENV
 
-          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-arm64-v8a-debug-signed.apk shosetsu-arm64-v8a-r${{ env.COMMIT_COUNT }}.apk
-          sha=`sha256sum shosetsu-arm64-v8a-r${{ env.COMMIT_COUNT }}.apk | awk '{ print $1 }'`
+          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-x86-debug-signed.apk shosetsu-r${{ env.COMMIT_COUNT }}-x86.apk
+          sha=`sha256sum shosetsu-r${{ env.COMMIT_COUNT }}-x86.apk | awk '{ print $1 }'`
+          echo "APK_X86_SHA=$sha" >> $GITHUB_ENV
+
+          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-x86_64-debug-signed.apk shosetsu-r${{ env.COMMIT_COUNT }}-x86_64.apk
+          sha=`sha256sum shosetsu-r${{ env.COMMIT_COUNT }}-x86_64.apk | awk '{ print $1 }'`
+          echo "APK_X86_64_SHA=$sha" >> $GITHUB_ENV
+
+          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-arm64-v8a-debug-signed.apk shosetsu-r${{ env.COMMIT_COUNT }}-zarm64-v8a.apk
+          sha=`sha256sum shosetsu-r${{ env.COMMIT_COUNT }}-zarm64-v8a.apk | awk '{ print $1 }'`
           echo "APK_ARM64_V8A_SHA=$sha" >> $GITHUB_ENV
 
-          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-armeabi-v7a-debug-signed.apk shosetsu-armeabi-v7a-r${{ env.COMMIT_COUNT }}.apk
-          sha=`sha256sum shosetsu-armeabi-v7a-r${{ env.COMMIT_COUNT }}.apk | awk '{ print $1 }'`
+          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-armeabi-v7a-debug-signed.apk shosetsu-r${{ env.COMMIT_COUNT }}-zarmeabi-v7a.apk
+          sha=`sha256sum shosetsu-r${{ env.COMMIT_COUNT }}-zarmeabi-v7a.apk | awk '{ print $1 }'`
           echo "APK_ARMEABI_V7A_SHA=$sha" >> $GITHUB_ENV
-
-          cp android/build/outputs/apk/standard/debug/shosetsu-preview-standard-x86-debug-signed.apk shosetsu-x86-r${{ env.COMMIT_COUNT }}.apk
-          sha=`sha256sum shosetsu-x86-r${{ env.COMMIT_COUNT }}.apk | awk '{ print $1 }'`
-          echo "APK_X86_SHA=$sha" >> $GITHUB_ENV
 
       - name: Create release
         uses: softprops/action-gh-release@v1
@@ -119,14 +123,16 @@ jobs:
             | Variant | SHA-256 |
             | ------- | ------- |
             | Universal | ${{ env.APK_UNIVERSAL_SHA }}
-            | arm64-v8a | ${{ env.APK_ARM64_V8A_SHA }}
-            | armeabi-v7a | ${{ env.APK_ARMEABI_V7A_SHA }}
-            | x86 | ${{ env.APK_X86_SHA }} |
+            | x86 | ${{ env.APK_X86_SHA }}
+            | x86_64 | ${{ ENV.APK_X86_64_SHA }}
+            | zarm64-v8a | ${{ env.APK_ARM64_V8A_SHA }}
+            | zarmeabi-v7a | ${{ env.APK_ARMEABI_V7A_SHA }} |
           files: |
-            shosetsu-universal-r${{ env.COMMIT_COUNT }}.apk
-            shosetsu-arm64-v8a-r${{ env.COMMIT_COUNT }}.apk
-            shosetsu-armeabi-v7a-r${{ env.COMMIT_COUNT }}.apk
-            shosetsu-x86-r${{ env.COMMIT_COUNT }}.apk
+            shosetsu-r${{ env.COMMIT_COUNT }}-universal.apk
+            shosetsu-r${{ env.COMMIT_COUNT }}-x86.apk
+            shosetsu-r${{ env.COMMIT_COUNT }}-x86_64.apk
+            shosetsu-r${{ env.COMMIT_COUNT }}-zarm64-v8a.apk
+            shosetsu-r${{ env.COMMIT_COUNT }}-zarmeabi-v7a.apk
           draft: ${{ github.event.inputs.dry-run != '' }}
           prerelease: false
         env:
